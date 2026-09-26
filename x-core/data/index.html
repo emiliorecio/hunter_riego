@@ -1,0 +1,110 @@
+<head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Hunter X-Core</title>
+    <link rel="stylesheet" href="/css/base-min.css">
+    <link rel="stylesheet" href="/css/pure-min.css">
+    <style>
+        body { margin: 0; padding: 16px; font-family: sans-serif; background: #f5f5f5; }
+        h1 { font-size: 1.4em; margin-bottom: 4px; }
+        .subtitle { color: #666; margin-top: 0; margin-bottom: 20px; }
+        .zone-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+        .zone-card { background: #fff; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.15); flex: 1 1 140px; min-width: 140px; box-sizing: border-box; }
+        .zone-card h3 { margin: 0 0 8px 0; }
+        .zone-card input[type=number] { width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        .btn-row { display: flex; gap: 6px; }
+        .btn-row button { flex: 1; }
+        .pure-button-start { background: #2e7d32; color: #fff; }
+        .pure-button-stop { background: #c62828; color: #fff; }
+        .programs { margin-top: 24px; }
+        .programs .btn-row { max-width: 360px; }
+        #result { margin-top: 20px; padding: 10px; border-radius: 6px; background: #eee; min-height: 1.2em; font-family: monospace; font-size: .9em; }
+        footer { margin-top: 24px; }
+        footer a { color: #666; }
+    </style>
+</head>
+
+<body>
+    <h1>Hunter X-Core</h1>
+    <p class="subtitle">Control de riego &ndash; 4 zonas</p>
+
+    <div class="zone-grid" id="zones"></div>
+
+    <div class="programs">
+        <h3>Programas</h3>
+        <div class="btn-row" id="programs"></div>
+    </div>
+
+    <div id="result">Listo.</div>
+
+    <footer>
+        <a href="/update">Actualizar firmware</a>
+    </footer>
+
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script>
+        var ZONES = 4;
+        var PROGRAMS = [{ id: 1, label: 'A' }, { id: 2, label: 'B' }, { id: 3, label: 'C' }];
+
+        function showResult(msg) {
+            $('#result').text(msg);
+        }
+
+        function startZone(zone, minutes) {
+            showResult('Iniciando zona ' + zone + '...');
+            $.get('/api/start/zone/' + zone, { time: minutes }, function (data) {
+                showResult(data.status || ('Zona ' + zone + ' iniciada.'));
+            }, 'json').fail(function () {
+                showResult('Error al iniciar la zona ' + zone + '.');
+            });
+        }
+
+        function stopZone(zone) {
+            showResult('Deteniendo zona ' + zone + '...');
+            $.get('/api/stop/zone/' + zone, function (data) {
+                showResult(data.status || ('Zona ' + zone + ' detenida.'));
+            }, 'json').fail(function () {
+                showResult('Error al detener la zona ' + zone + '.');
+            });
+        }
+
+        function startProgram(program, label) {
+            showResult('Iniciando programa ' + label + '...');
+            $.get('/api/start/program/' + program, function (data) {
+                showResult(data.status || ('Programa ' + label + ' iniciado.'));
+            }, 'json').fail(function () {
+                showResult('Error al iniciar el programa ' + label + '.');
+            });
+        }
+
+        $(function () {
+            var $zones = $('#zones');
+            for (var z = 1; z <= ZONES; z++) {
+                var $card = $(
+                    '<div class="zone-card">' +
+                    '<h3>Zona ' + z + '</h3>' +
+                    '<input type="number" class="pure-input-1" min="1" max="60" value="5" id="time-' + z + '">' +
+                    '<div class="btn-row">' +
+                    '<button type="button" class="pure-button pure-button-start">Iniciar</button>' +
+                    '<button type="button" class="pure-button pure-button-stop">Detener</button>' +
+                    '</div>' +
+                    '</div>'
+                );
+                $card.find('.pure-button-start').on('click', (function (zone) {
+                    return function () { startZone(zone, $('#time-' + zone).val()); };
+                })(z));
+                $card.find('.pure-button-stop').on('click', (function (zone) {
+                    return function () { stopZone(zone); };
+                })(z));
+                $zones.append($card);
+            }
+
+            var $programs = $('#programs');
+            PROGRAMS.forEach(function (p) {
+                var $btn = $('<button type="button" class="pure-button pure-button-primary">Programa ' + p.label + '</button>');
+                $btn.on('click', function () { startProgram(p.id, p.label); });
+                $programs.append($btn);
+            });
+        });
+    </script>
+</body>

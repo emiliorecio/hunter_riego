@@ -1,0 +1,24 @@
+<head>
+    <meta charset="utf-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Actualizar firmware</title>
+    <link rel="stylesheet" href="/css/base-min.css">
+    <link rel="stylesheet" href="/css/pure-min.css">
+</head>
+
+<body style="margin:0; padding:16px; font-family: sans-serif;">
+    <div class="pure-menu pure-menu-horizontal" style="height:50px">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="/home" class="pure-menu-link">Inicio</a>
+            </li>
+        </ul>
+    </div>
+    <form method='POST' action='/doUpdate' enctype='multipart/form-data' class='pure-form-stacked'>
+        <fieldset>
+            <legend>Actualizar firmware</legend>
+            <input type='file' name='update' class='pure-file'>
+            <input type='submit' value='Update' class='pure-button pure-button-primary'>
+        </fieldset>
+    </form>
+</body>

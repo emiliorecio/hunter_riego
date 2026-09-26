@@ -1,0 +1,19 @@
+# Arduino IDE / arduino-cli build output
+build/
+*.bin
+*.elf
+*.map
+*.hex
+
+# Local credentials (never commit)
+secrets.h
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db

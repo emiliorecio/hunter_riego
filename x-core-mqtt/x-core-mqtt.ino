@@ -6,7 +6,10 @@
 #include "ESP8266mDNS.h"
 
 #include "mqtt.h"
+#include "ota.h"
+#include "settings.h"
 #include "web_server.h"
+#include "web_server_scheduled.h"
 #include "wifi.h"
 
 AsyncWebServer server = AsyncWebServer(80);
@@ -17,6 +20,9 @@ MQTT from_wifi_manager;
 
 void setup() {
   Serial.begin(SERIAL_SPEED);
+  Serial.printf("\n%s v%s\n", FW_NAME, FW_VERSION);
+  setupStatusLed();
+  loadSettings();
   // WiFi.mode(WIFI_STA);
   Serial.println("mounting FS...");
   if (LittleFS.begin()) {
@@ -50,10 +56,11 @@ void setup() {
   // this is here just to make sure that if wifimanager is
   // skipped when config is saved, MQTT still works, otherwise empty data would
   // override what we learned from config file saved on disk
-  from_wifi_manager = setup_wifi();
+  from_wifi_manager = setup_wifi(MqttSettings);
   if (from_wifi_manager.server != "") {
     MqttSettings = from_wifi_manager;
   }
+  configTime(TZ_INFO, NTP_SERVER);
   setup_WebServer();
   if (shouldSaveConfig) {
     Serial.println("saving config");
@@ -100,5 +107,7 @@ void loop() {
   // wifiDisconnected = checkWifiConnection(wifiDisconnected);
   client.loop();
   MDNS.update();
+  runSchedules();
+  otaLoop();
   // timer.run();
 }

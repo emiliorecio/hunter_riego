@@ -5,6 +5,7 @@
  * First version: July 2020 - Eloi Codina Torras
  */
 #include "ESP8266mDNS.h"
+#include "LittleFS.h"
 #include "ESPAsyncTCP.h"
 
 #include "global_config.h"
@@ -40,6 +41,14 @@ void setup_APIRoutes() {
   server.on("/api/start", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(400, "text/plain", "What should I start?");
   });
+  server.on("/api/version", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "application/json",
+                  "{\"name\": \"" FW_NAME "\", \"version\": \"" FW_VERSION "\"}");
+  });
+  server.on("/api/status", HTTP_GET, statusRequest);
+  server.on("/api/settings", HTTP_GET, getSettingsRequest);
+  server.on("/api/settings", HTTP_POST, saveSettingsRequest);
+  server.on("/api/portal", HTTP_POST, portalRequest);
   server.on("/api", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(403, "text/plain", "This is the API root");
   });
@@ -50,11 +59,15 @@ void setup_APIRoutes() {
   server.on("/update", HTTP_GET,
             [](AsyncWebServerRequest *request) { handleUpdate(request); });
   server.on(
-      "/doUpdate", HTTP_POST, [](AsyncWebServerRequest *request) {},
+      "/doUpdate", HTTP_POST, handleUpdateDone,
       [](AsyncWebServerRequest *request, const String &filename, size_t index,
          uint8_t *data, size_t len, bool final) {
         handleDoUpdate(request, filename, index, data, len, final);
       });
+
+  // Dashboard assets bundled in data/ (cached: they only change on a LittleFS upload)
+  server.serveStatic("/css/", LittleFS, "/css/").setCacheControl("max-age=86400");
+  server.serveStatic("/js/", LittleFS, "/js/").setCacheControl("max-age=86400");
 
   server.onNotFound(handleNotFound);
 }

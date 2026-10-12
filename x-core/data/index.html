@@ -7,103 +7,308 @@
     <style>
         body { margin: 0; padding: 16px; font-family: sans-serif; background: #f5f5f5; }
         h1 { font-size: 1.4em; margin-bottom: 4px; }
+        h2 { font-size: 1.15em; margin: 28px 0 10px 0; }
         .subtitle { color: #666; margin-top: 0; margin-bottom: 20px; }
+        .hint { color: #666; font-size: .85em; }
+        .status { background: #fff; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.15); margin-bottom: 16px; }
+        .status strong { color: #2e7d32; }
         .zone-grid { display: flex; flex-wrap: wrap; gap: 12px; }
         .zone-card { background: #fff; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.15); flex: 1 1 140px; min-width: 140px; box-sizing: border-box; }
-        .zone-card h3 { margin: 0 0 8px 0; }
+        .zone-card.active { outline: 3px solid #2e7d32; }
+        .zone-card h3 { margin: 0 0 8px 0; overflow-wrap: anywhere; }
         .zone-card input[type=number] { width: 100%; box-sizing: border-box; margin-bottom: 8px; }
         .btn-row { display: flex; gap: 6px; }
         .btn-row button { flex: 1; }
         .pure-button-start { background: #2e7d32; color: #fff; }
         .pure-button-stop { background: #c62828; color: #fff; }
-        .programs { margin-top: 24px; }
         .programs .btn-row { max-width: 360px; }
         #result { margin-top: 20px; padding: 10px; border-radius: 6px; background: #eee; min-height: 1.2em; font-family: monospace; font-size: .9em; }
-        footer { margin-top: 24px; }
+        details { background: #fff; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.15); margin-top: 16px; }
+        summary { cursor: pointer; font-weight: bold; }
+        .names input { width: 100%; box-sizing: border-box; margin-bottom: 6px; }
+        .schedule { border-top: 1px solid #ddd; padding: 10px 0; }
+        .schedule .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .schedule select, .schedule input[type=time], .schedule input[type=number] { max-width: 100%; }
+        .schedule input[type=number] { width: 5em; }
+        .days label { margin-right: 8px; white-space: nowrap; }
+        footer { margin-top: 24px; display: flex; gap: 16px; flex-wrap: wrap; }
         footer a { color: #666; }
     </style>
 </head>
 
 <body>
     <h1>Hunter X-Core</h1>
-    <p class="subtitle">Control de riego &ndash; 4 zonas</p>
+    <p class="subtitle" id="subtitle">Control de riego</p>
+
+    <div class="status">
+        <div id="status">Consultando estado...</div>
+        <div class="hint">Solo muestra lo que se inició desde esta placa: no ve los programas propios del X-Core.</div>
+    </div>
 
     <div class="zone-grid" id="zones"></div>
 
     <div class="programs">
-        <h3>Programas</h3>
+        <h2>Programas</h2>
         <div class="btn-row" id="programs"></div>
     </div>
 
     <div id="result">Listo.</div>
 
+    <details id="settings">
+        <summary>Configuración: zonas y horarios</summary>
+
+        <h2>Zonas</h2>
+        <label>Cantidad de zonas
+            <input type="number" id="zone-count" min="1" max="48">
+        </label>
+        <div class="names" id="names"></div>
+
+        <h2>Horarios</h2>
+        <p class="hint">
+            La placa inicia la zona a la hora indicada (hora de la placa: <span id="clock">sin sincronizar</span>).
+            El X-Core riega una zona por vez: si dos horarios coinciden, queda el último.
+        </p>
+        <div id="schedules"></div>
+        <div class="btn-row" style="max-width: 360px; margin-top: 10px;">
+            <button type="button" class="pure-button" id="add-schedule">Agregar horario</button>
+            <button type="button" class="pure-button pure-button-primary" id="save-settings">Guardar</button>
+        </div>
+    </details>
+
     <footer>
-        <a href="/update">Actualizar firmware</a>
+        <a href="/update">Actualizar firmware o dashboard</a>
+        <a href="#" id="portal">Reabrir portal de configuración</a>
     </footer>
 
     <script src="/js/jquery-3.6.0.min.js"></script>
     <script>
-        var ZONES = 4;
+        var MAX_SCHEDULES = 16;
+        var DAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa']; // bit 0 is Sunday
         var PROGRAMS = [{ id: 1, label: 'A' }, { id: 2, label: 'B' }, { id: 3, label: 'C' }];
+        var settings = { zones: ['', '', '', ''], schedules: [] };
 
         function showResult(msg) {
             $('#result').text(msg);
         }
 
+        function zoneName(zone) {
+            var name = settings.zones[zone - 1];
+            return name ? name + ' (zona ' + zone + ')' : 'Zona ' + zone;
+        }
+
+        function pad(n) {
+            return (n < 10 ? '0' : '') + n;
+        }
+
         function startZone(zone, minutes) {
-            showResult('Iniciando zona ' + zone + '...');
+            showResult('Iniciando ' + zoneName(zone) + '...');
             $.get('/api/start/zone/' + zone, { time: minutes }, function (data) {
-                showResult(data.status || ('Zona ' + zone + ' iniciada.'));
-            }, 'json').fail(function () {
-                showResult('Error al iniciar la zona ' + zone + '.');
+                showResult(zoneName(zone) + ': ' + (data.status || 'iniciada.'));
+                refreshStatus();
+            }, 'json').fail(function (xhr) {
+                showResult('Error al iniciar ' + zoneName(zone) + ': ' + xhr.responseText);
             });
         }
 
         function stopZone(zone) {
-            showResult('Deteniendo zona ' + zone + '...');
+            showResult('Deteniendo ' + zoneName(zone) + '...');
             $.get('/api/stop/zone/' + zone, function (data) {
-                showResult(data.status || ('Zona ' + zone + ' detenida.'));
-            }, 'json').fail(function () {
-                showResult('Error al detener la zona ' + zone + '.');
+                showResult(zoneName(zone) + ': ' + (data.status || 'detenida.'));
+                refreshStatus();
+            }, 'json').fail(function (xhr) {
+                showResult('Error al detener ' + zoneName(zone) + ': ' + xhr.responseText);
             });
         }
 
         function startProgram(program, label) {
             showResult('Iniciando programa ' + label + '...');
             $.get('/api/start/program/' + program, function (data) {
-                showResult(data.status || ('Programa ' + label + ' iniciado.'));
-            }, 'json').fail(function () {
-                showResult('Error al iniciar el programa ' + label + '.');
+                showResult('Programa ' + label + ': ' + (data.status || 'iniciado.'));
+                refreshStatus();
+            }, 'json').fail(function (xhr) {
+                showResult('Error al iniciar el programa ' + label + ': ' + xhr.responseText);
             });
         }
 
-        $(function () {
-            var $zones = $('#zones');
-            for (var z = 1; z <= ZONES; z++) {
+        function refreshStatus() {
+            $.getJSON('/api/status', function (s) {
+                var text;
+                if (s.zone) {
+                    var min = Math.floor(s.remaining / 60), sec = s.remaining % 60;
+                    text = 'Regando: <strong></strong> &ndash; faltan ' + min + ':' + pad(sec);
+                    $('#status').html(text).find('strong').text(zoneName(s.zone));
+                } else if (s.program && s.program_ago < 3600) {
+                    // The API accepts program D (4) too, which has no button
+                    $('#status').text('Programa ' + String.fromCharCode(64 + s.program) + ' iniciado hace ' +
+                        Math.floor(s.program_ago / 60) + ' min.');
+                } else {
+                    $('#status').text('Nada en riego.');
+                }
+                $('.zone-card').removeClass('active');
+                if (s.zone) $('#card-' + s.zone).addClass('active');
+                $('#clock').text(s.time || 'sin sincronizar');
+            }).fail(function () {
+                $('#status').text('No se pudo consultar el estado.');
+            });
+        }
+
+        function renderZones() {
+            var $zones = $('#zones').empty();
+            $('#subtitle').text('Control de riego – ' + settings.zones.length + ' zonas');
+            settings.zones.forEach(function (name, i) {
+                var zone = i + 1;
                 var $card = $(
-                    '<div class="zone-card">' +
-                    '<h3>Zona ' + z + '</h3>' +
-                    '<input type="number" class="pure-input-1" min="1" max="60" value="5" id="time-' + z + '">' +
+                    '<div class="zone-card" id="card-' + zone + '">' +
+                    '<h3></h3>' +
+                    '<input type="number" class="pure-input-1" min="1" max="240" value="5" id="time-' + zone + '">' +
                     '<div class="btn-row">' +
                     '<button type="button" class="pure-button pure-button-start">Iniciar</button>' +
                     '<button type="button" class="pure-button pure-button-stop">Detener</button>' +
                     '</div>' +
                     '</div>'
                 );
-                $card.find('.pure-button-start').on('click', (function (zone) {
-                    return function () { startZone(zone, $('#time-' + zone).val()); };
-                })(z));
-                $card.find('.pure-button-stop').on('click', (function (zone) {
-                    return function () { stopZone(zone); };
-                })(z));
+                $card.find('h3').text(name || 'Zona ' + zone);
+                $card.find('.pure-button-start').on('click', function () { startZone(zone, $('#time-' + zone).val()); });
+                $card.find('.pure-button-stop').on('click', function () { stopZone(zone); });
                 $zones.append($card);
-            }
+            });
+        }
 
-            var $programs = $('#programs');
+        // Settings form <-> settings object
+
+        function renderNames(names) {
+            var $names = $('#names').empty();
+            names.forEach(function (name, i) {
+                $('<input type="text" class="pure-input-1" maxlength="32">')
+                    .attr('placeholder', 'Zona ' + (i + 1)).val(name).appendTo($names);
+            });
+        }
+
+        function readNames() {
+            return $('#names input').map(function () { return $(this).val().trim(); }).get();
+        }
+
+        function zoneOptions(selected) {
+            var $select = $('<select class="zone"></select>');
+            readNames().forEach(function (name, i) {
+                $('<option>').val(i + 1).text((i + 1) + '. ' + (name || 'Zona ' + (i + 1)))
+                    .prop('selected', i + 1 === selected).appendTo($select);
+            });
+            return $select;
+        }
+
+        function addSchedule(s) {
+            var $s = $(
+                '<div class="schedule">' +
+                '<div class="row">' +
+                '<label><input type="checkbox" class="on"> Activo</label>' +
+                '<input type="time" class="time" required>' +
+                '<span class="zone-slot"></span>' +
+                '<label><input type="number" class="min" min="1" max="240"> min</label>' +
+                '<button type="button" class="pure-button remove">Quitar</button>' +
+                '</div>' +
+                '<div class="days"></div>' +
+                '</div>'
+            );
+            $s.find('.on').prop('checked', s.on);
+            $s.find('.time').val(pad(s.h) + ':' + pad(s.m));
+            $s.find('.min').val(s.min);
+            $s.find('.zone-slot').append(zoneOptions(s.zone));
+            DAYS.forEach(function (day, bit) {
+                $('<label><input type="checkbox"> ' + day + '</label>')
+                    .find('input').prop('checked', (s.days & (1 << bit)) !== 0).end()
+                    .appendTo($s.find('.days'));
+            });
+            $s.find('.remove').on('click', function () { $s.remove(); });
+            $('#schedules').append($s);
+        }
+
+        function readSchedules() {
+            return $('#schedules .schedule').map(function () {
+                var $s = $(this), time = ($s.find('.time').val() || '00:00').split(':'), days = 0;
+                $s.find('.days input').each(function (bit) { if (this.checked) days |= 1 << bit; });
+                return {
+                    on: $s.find('.on').prop('checked'),
+                    days: days,
+                    h: parseInt(time[0], 10),
+                    m: parseInt(time[1], 10),
+                    zone: parseInt($s.find('.zone').val(), 10),
+                    min: parseInt($s.find('.min').val(), 10)
+                };
+            }).get();
+        }
+
+        function renderSettings() {
+            $('#zone-count').val(settings.zones.length);
+            renderNames(settings.zones);
+            $('#schedules').empty();
+            settings.schedules.forEach(addSchedule);
+        }
+
+        // Zone names or count changed: refresh the zone lists of the schedules
+        function refreshZoneOptions() {
+            $('#schedules .zone').each(function () {
+                var selected = parseInt($(this).val(), 10);
+                $(this).replaceWith(zoneOptions(selected));
+            });
+        }
+
+        $(function () {
             PROGRAMS.forEach(function (p) {
                 var $btn = $('<button type="button" class="pure-button pure-button-primary">Programa ' + p.label + '</button>');
                 $btn.on('click', function () { startProgram(p.id, p.label); });
-                $programs.append($btn);
+                $('#programs').append($btn);
+            });
+
+            $.getJSON('/api/settings', function (data) {
+                settings = data;
+            }).always(function () {
+                renderZones();
+                renderSettings();
+                refreshStatus();
+                setInterval(refreshStatus, 5000);
+            });
+
+            $('#zone-count').on('change', function () {
+                var count = Math.max(1, Math.min(48, parseInt($(this).val(), 10) || 1));
+                var names = readNames().slice(0, count);
+                while (names.length < count) names.push('');
+                $(this).val(count);
+                renderNames(names);
+                refreshZoneOptions();
+            });
+            $('#names').on('change', 'input', refreshZoneOptions);
+
+            $('#add-schedule').on('click', function () {
+                if ($('#schedules .schedule').length >= MAX_SCHEDULES) {
+                    showResult('Como máximo ' + MAX_SCHEDULES + ' horarios.');
+                    return;
+                }
+                addSchedule({ on: true, days: 127, h: 6, m: 0, zone: 1, min: 10 });
+            });
+
+            $('#save-settings').on('click', function () {
+                var data = { zones: readNames(), schedules: readSchedules() };
+                showResult('Guardando configuración...');
+                $.post('/api/settings', { data: JSON.stringify(data) }, function () {
+                    settings = data;
+                    renderZones();
+                    refreshStatus();
+                    showResult('Configuración guardada.');
+                }).fail(function (xhr) {
+                    showResult('Error al guardar: ' + xhr.responseText);
+                });
+            });
+
+            $('#portal').on('click', function (e) {
+                e.preventDefault();
+                if (!confirm('La placa se reinicia y abre la red WateringSystemAP durante 5 minutos ' +
+                        'para cambiar el WiFi (y el broker MQTT, si corresponde). ¿Seguir?')) return;
+                $.post('/api/portal', function () {
+                    showResult('Reiniciando. Conectate a la red WateringSystemAP y entrá a 192.168.4.1.');
+                }).fail(function () {
+                    showResult('No se pudo abrir el portal.');
+                });
             });
         });
     </script>

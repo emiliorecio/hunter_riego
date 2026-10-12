@@ -6,6 +6,10 @@
 void startZoneRequest(AsyncWebServerRequest *request);
 void startProgramRequest(AsyncWebServerRequest *request);
 void stopZoneRequest(AsyncWebServerRequest *request);
+void statusRequest(AsyncWebServerRequest *request);
+void getSettingsRequest(AsyncWebServerRequest *request);
+void saveSettingsRequest(AsyncWebServerRequest *request);
+void portalRequest(AsyncWebServerRequest *request);
 int getIdFromURL(AsyncWebServerRequest *request, String root);
 
-#endif
+#endif

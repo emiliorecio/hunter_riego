@@ -7,8 +7,11 @@
  */
 #include "Schedule.h"
 
+#include "ota.h"
+#include "settings.h"
 #include "web_server_api.h"
 #include "web_server_scheduled.h"
+#include "wifi.h"
 
 /**
  * Extract the latest parameter on the URL given the request and the base path.
@@ -43,8 +46,16 @@ void startZoneRequest(AsyncWebServerRequest *request) {
   if (!(request->hasParam("time"))) {
     request->send_P(400, "text/plain", "Please include parameter 'time'.");
   } else {
-    byte num = getIdFromURL(request, "/api/start/zone/");
-    byte time = request->getParam("time")->value().toInt();
+    int num = getIdFromURL(request, "/api/start/zone/");
+    int time = request->getParam("time")->value().toInt();
+    if (num < 1 || num > MAX_ZONES) {
+      request->send(400, "text/plain", "Zone must be between 1 and " + String(MAX_ZONES) + ".");
+      return;
+    }
+    if (time < 1 || time > 240) {
+      request->send(400, "text/plain", "Parameter 'time' must be between 1 and 240 minutes.");
+      return;
+    }
 
     String result;
     String toReturn;
@@ -90,7 +101,11 @@ void startProgramRequest(AsyncWebServerRequest *request) {
                "you have specified.\"";
   }
 
-  byte num = getIdFromURL(request, "/api/start/program/");
+  int num = getIdFromURL(request, "/api/start/program/");
+  if (num < 1 || num > 4) {
+    request->send(400, "text/plain", "Program must be between 1 and 4.");
+    return;
+  }
   schedule_function([num, result]() { startProgram(num, result); });
 
   request->send_P(
@@ -122,7 +137,11 @@ void stopZoneRequest(AsyncWebServerRequest *request) {
                "you have specified.\"";
   }
 
-  byte num = getIdFromURL(request, "/api/stop/zone/");
+  int num = getIdFromURL(request, "/api/stop/zone/");
+  if (num < 1 || num > MAX_ZONES) {
+    request->send(400, "text/plain", "Zone must be between 1 and " + String(MAX_ZONES) + ".");
+    return;
+  }
   schedule_function([num, result]() { stopZone(num, result); });
 
   request->send_P(
@@ -130,4 +149,47 @@ void stopZoneRequest(AsyncWebServerRequest *request) {
       ((String) "{\"status\": \"Request received and processed correctly.\"," +
        (String) "\"result\": " + toReturn + "}")
           .c_str());
+}
+
+/**
+ * GET /api/status: what was last started from this board (see getStatusJson).
+ */
+void statusRequest(AsyncWebServerRequest *request) {
+  request->send(200, "application/json", getStatusJson());
+}
+
+/**
+ * GET /api/settings: zone names and schedules.
+ */
+void getSettingsRequest(AsyncWebServerRequest *request) {
+  request->send(200, "application/json", getSettingsJson());
+}
+
+/**
+ * POST /api/settings with a form field 'data' holding the settings JSON. It is
+ * checked here and written to flash at the next loop.
+ */
+void saveSettingsRequest(AsyncWebServerRequest *request) {
+  if (!request->hasParam("data", true)) {
+    request->send(400, "text/plain", "Please include field 'data'.");
+    return;
+  }
+  String data = request->getParam("data", true)->value();
+  String error;
+  if (!validateSettings(data, error)) {
+    request->send(400, "text/plain", error);
+    return;
+  }
+  schedule_function([data]() { saveSettings(data); });
+  request->send(200, "application/json", "{\"status\": \"Settings saved.\"}");
+}
+
+/**
+ * POST /api/portal: reboot into the WiFi configuration portal.
+ */
+void portalRequest(AsyncWebServerRequest *request) {
+  requestConfigPortal();
+  scheduleReboot();
+  request->send(200, "application/json",
+                "{\"status\": \"Rebooting into the configuration portal.\"}");
 }

@@ -10,8 +10,6 @@
 #define SHORT_INTERVAL 208
 #define LONG_INTERVAL 1875
 
-#define HUNTER_PIN 16 // D0
-
 class HunterRoam {
     public:
         HunterRoam(int pin);

@@ -10,11 +10,48 @@
 #include "web_server.h"
 #include "wifi.h"
 
+#define PORTAL_FLAG    0x504f5254 // "PORT", kept in RTC memory across a reboot
+#define PORTAL_TIMEOUT 300        // seconds
+
+/**
+ * Make the next boot open the configuration portal. The flag lives in RTC
+ * memory, which survives a software restart without writing to flash.
+ */
+void requestConfigPortal() {
+  uint32_t flag = PORTAL_FLAG;
+  ESP.rtcUserMemoryWrite(0, &flag, sizeof(flag));
+}
+
+/**
+ * Whether requestConfigPortal() asked for the portal before this boot. It
+ * clears the flag, so the portal opens only once.
+ */
+static bool portalRequested() {
+  uint32_t flag = 0;
+  ESP.rtcUserMemoryRead(0, &flag, sizeof(flag));
+  if (flag != PORTAL_FLAG) {
+    return false;
+  }
+  flag = 0;
+  ESP.rtcUserMemoryWrite(0, &flag, sizeof(flag));
+  return true;
+}
+
 void setup_wifi() {
   DNSServer dns;
   WiFi.persistent(true);
   AsyncWiFiManager wifiManager(&server, &dns);
   // wifiManager.resetSettings();
+  if (portalRequested()) {
+    // Opened from the dashboard. If nobody saves it in time, reboot and
+    // connect with the saved credentials as usual.
+    Serial.println("Opening the configuration portal on request");
+    wifiManager.setConfigPortalTimeout(PORTAL_TIMEOUT);
+    if (!wifiManager.startConfigPortal(SSID_AP, PWD_AP)) {
+      ESP.restart();
+    }
+    return;
+  }
   // Connect with the saved credentials; only open the config portal if that
   // fails, so the device reconnects on its own after a power cut.
   wifiManager.autoConnect(SSID_AP, PWD_AP);

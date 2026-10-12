@@ -9,7 +9,8 @@
 #include "global_config.h"
 #include "mqtt.h"
 
-MQTT setup_wifi();
+MQTT setup_wifi(const MQTT &current);
+void requestConfigPortal();
 bool checkWifiConnection(bool nextTimeShouldReboot);
 
 #endif

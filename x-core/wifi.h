@@ -9,6 +9,7 @@
 #include "global_config.h"
 
 void setup_wifi();
+void requestConfigPortal();
 bool checkWifiConnection(bool nextTimeShouldReboot);
 
 #endif

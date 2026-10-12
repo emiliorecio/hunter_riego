@@ -14,11 +14,25 @@
             </li>
         </ul>
     </div>
-    <form method='POST' action='/doUpdate' enctype='multipart/form-data' class='pure-form-stacked'>
+    <form method='POST' action='/doUpdate' enctype='multipart/form-data' class='pure-form-stacked' id='form'>
         <fieldset>
-            <legend>Actualizar firmware</legend>
-            <input type='file' name='update' class='pure-file'>
-            <input type='submit' value='Update' class='pure-button pure-button-primary'>
+            <legend>Actualizar</legend>
+            <label><input type='radio' name='type' value='firmware' checked> Firmware (el <code>.bin</code> del sketch)</label>
+            <label><input type='radio' name='type' value='fs'> Dashboard (imagen LittleFS de <code>data/</code>)</label>
+            <p style="color:#666; font-size:.85em; max-width: 40em;">
+                Subir el dashboard reemplaza todo el LittleFS. Los nombres de zonas y los horarios no se pierden,
+                pero en <code>x-core-mqtt</code> sí se borran los datos del broker: después hay que volver a
+                cargarlos desde el portal.
+            </p>
+            <input type='file' name='update' class='pure-file' required>
+            <input type='submit' value='Subir' class='pure-button pure-button-primary'>
         </fieldset>
     </form>
+    <script>
+        // The board reads the target from the URL: form fields may not be parsed yet when the file arrives
+        document.getElementById('form').addEventListener('submit', function () {
+            var fs = document.querySelector('input[name=type]:checked').value === 'fs';
+            this.action = '/doUpdate' + (fs ? '?type=fs' : '');
+        });
+    </script>
 </body>

@@ -19,6 +19,28 @@ The following diagram shows how to connect it. You can also [check a real photo 
 
 ![Connection diagram](../images/connection.png)
 
+### Safety and grounding warnings
+
+These match the findings documented in
+[aprather21/hunter-x2-esphome](https://github.com/aprather21/hunter-x2-esphome)
+(Hunter X2, same REM/SmartPort interface):
+
+- **Never connect the board's GND to any controller terminal.** Only the
+  charger's 0 V goes to GND. The controller runs its processor on a negative
+  supply: AC#2 is the processor's +3.3 V rail and its ground sits 3.3 V below
+  it, so the REM line is referenced to AC#2. Tying GND to AC#1/AC#2 inverts
+  the signal and the controller silently ignores every command.
+- **Use an isolated 2-prong charger** (no earth pin). The whole 24 VAC circuit
+  floats with respect to earth and must stay that way.
+- **Never plug the board into a computer's USB while it is wired to the
+  controller**: that bonds the controller's supply to earth through the
+  computer. Update over WiFi (`/update`), or disconnect the controller wires
+  and flash at the desk.
+- **Signal margin:** driving REM straight from a 3.3 V GPIO (as here and in
+  upstream hunter-wifi) works in practice, but the logic "high" has little
+  margin. If the controller ignores commands, add a 5 V buffer such as an
+  SN74AHCT125 (or 74AHCT1G125) between the GPIO and REM, as aprather21 does.
+
 
 ## 2. Using the 24 VAC from the SmartPort
 

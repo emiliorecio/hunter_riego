@@ -115,7 +115,8 @@ En `http://X-CORE.local/update` se elige qué se sube:
 
 - [API HTTP](docs/pages/api.md)
 - [API MQTT](docs/pages/mqtt.md) (solo `x-core-mqtt`)
-- [Conexión al SmartPort](docs/pages/hunterconnection.md)
+- [Conexión al SmartPort](docs/pages/hunterconnection.md) (incluye advertencias de GND y aislamiento)
+- [Proyectos relacionados](docs/pages/proyectos-relacionados.md): comparación con otros proyectos Hunter y qué tomamos de cada uno
 
 ## Créditos y licencia
 

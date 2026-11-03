@@ -11,7 +11,12 @@
 - [ ] Probar una zona 1 minuto + Detener, y un programa.
 - [ ] Probar el portal *WateringSystemAP* desde cero (Erase Flash: "All Flash Contents", luego volver a subir el LittleFS): la placa tenía el WiFi guardado de un proyecto anterior y el portal nunca apareció.
 - [ ] Actualizar el diagrama `docs/images/connection.png` (todavía muestra D0).
-- [ ] Alimentar la placa desde los 24 VAC del X-Core, sin cargador aparte.
+- [ ] Alimentar la placa desde los 24 VAC del X-Core, sin cargador aparte. Ojo: se pierde el aislamiento del cargador; tomar como base el circuito de [HunterMonitor](https://github.com/czsmith/HunterMonitor) en vez de improvisar.
+- [ ] Recordar al cablear: GND **solo** al 0 V del cargador (nunca a un borne del X-Core), cargador aislado de 2 patas, y **nunca** enchufar el USB de la compu con la placa cableada (actualizar por `/update`). Detalle en `docs/pages/hunterconnection.md`.
+- [ ] Si el X-Core ignora comandos: agregar un buffer SN74AHCT125 entre D1 y REM para que la señal llegue a 5 V (como [hunter-x2-esphome](https://github.com/aprather21/hunter-x2-esphome)).
+
+## Estado real de las válvulas (a futuro)
+- [ ] Detectar si cada zona está regando de verdad. Hoy el dashboard solo muestra lo que la placa mandó (REM es de un solo sentido): no ve los programas propios del X-Core ni el dial manual, y no confirma que la válvula abrió. Idea: un optoacoplador por salida de zona (H11AA1, o PC817 + resistencia + diodo) que detecte los 24 VAC hacia la válvula, leído en D2, D5, D6 y D7, y mostrarlo en el dashboard / `/api/status`. Referencias: [HunterMonitor](https://github.com/czsmith/HunterMonitor) (X-Core 400) y [Hunter_LS](https://github.com/luisfosoares/Hunter_LS).
 
 ## OTA / actualización
 - [ ] Permitir subir la imagen del LittleFS (dashboard) desde `/update`. Implementado en 0.2.0, falta probar en la placa.

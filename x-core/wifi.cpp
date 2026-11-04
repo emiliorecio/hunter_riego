@@ -40,6 +40,9 @@ static bool portalRequested() {
 void setup_wifi() {
   DNSServer dns;
   WiFi.persistent(true);
+  // Keep the radio awake: with the default modem sleep the ESP8266 misses
+  // multicast packets and stops answering mDNS (X-CORE.local).
+  WiFi.setSleepMode(WIFI_NONE_SLEEP);
   AsyncWiFiManager wifiManager(&server, &dns);
   // wifiManager.resetSettings();
   if (portalRequested()) {

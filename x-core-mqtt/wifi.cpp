@@ -60,6 +60,9 @@ MQTT setup_wifi(const MQTT &current) {
   strlcpy(MQTT_USER, current.username.c_str(), sizeof(MQTT_USER));
   strlcpy(MQTT_PASSWORD, current.password.c_str(), sizeof(MQTT_PASSWORD));
   WiFi.persistent(true);
+  // Keep the radio awake: with the default modem sleep the ESP8266 misses
+  // multicast packets and stops answering mDNS (X-CORE.local).
+  WiFi.setSleepMode(WIFI_NONE_SLEEP);
   AsyncWiFiManagerParameter custom_mqtt_enable("enable", "Enable MQTT (1/0)",
                                                MQTT_ENABLE, 1);
   AsyncWiFiManagerParameter custom_mqtt_server("server", "MQTT server",

@@ -19,7 +19,7 @@ static_assert(sizeof(PWD_AP) - 1 >= 8 && sizeof(PWD_AP) - 1 <= 63,
               "PWD_AP in secrets.h must be 8-63 characters, or the portal AP stays open");
 
 #define FW_NAME    "x-core-mqtt"            // Which sketch is flashed
-#define FW_VERSION "0.2.1"
+#define FW_VERSION "0.2.2"
 
 extern bool shouldSaveConfig;
 void saveConfigCallback ();

@@ -8,7 +8,7 @@
 
 ## Instalación en el X-Core
 - [ ] Cablear: D1 → REM, VIN → AC#2 + 5 V del cargador, GND → 0 V del cargador (cargador aislado).
-- [ ] Probar una zona 1 minuto + Detener, y un programa.
+- [ ] Probar una zona 1 minuto + Detener, y un programa, ya con el X-Core (en la mesa la API y el LED responden bien, 2026-11-03).
 - [x] Probar el portal *WateringSystemAP* desde cero (Erase Flash: "All Flash Contents", luego volver a subir el LittleFS). Probado en la mesa el 2026-11-03 con x-core 0.2.0.
 - [ ] Actualizar el diagrama `docs/images/connection.png` (todavía muestra D0).
 - [ ] Alimentar la placa desde los 24 VAC del X-Core, sin cargador aparte. Ojo: se pierde el aislamiento del cargador; tomar como base el circuito de [HunterMonitor](https://github.com/czsmith/HunterMonitor) en vez de improvisar.
@@ -26,10 +26,10 @@
 - [x] Nombres para las zonas ("Jardín del frente", etc.). Probado en la placa (2026-11-03).
 - [x] Mostrar qué zona está regando y cuánto le falta (solo lo que se inicia desde la placa). Probado en la placa con los horarios (2026-11-03).
 - [x] Horarios propios desde la web. Probado en la placa (2026-11-03): hora NTP correcta y dos horarios disparados a tiempo.
-- [ ] (Opcional) Que el LED parpadee solo mientras se envía un comando. Implementado en 0.2.0 (LED de la ESP-12, D4), falta probar en la placa.
+- [x] (Opcional) Que el LED parpadee solo mientras se envía un comando (LED de la ESP-12, D4). Probado en la placa (2026-11-03).
 
 ## x-core-mqtt
-- [ ] Forma de reabrir el portal para cambiar los datos del broker MQTT (con `autoConnect` ya no se abre solo). Implementado en 0.2.0 (link en el dashboard, en los dos sketches), falta probar en la placa.
+- [ ] Forma de reabrir el portal para cambiar los datos del broker MQTT (con `autoConnect` ya no se abre solo). Implementado en 0.2.0 (link en el dashboard, en los dos sketches). En `x-core` probado en la placa desde 0.2.2 (abre, y se cierra solo y vuelve al WiFi si nadie guarda) (la marca en RTC estaba en el bloque 0, que el core borra al arrancar); falta probarlo en `x-core-mqtt`.
 
 ## Red
 - [x] `X-CORE.local` dejaba de resolver (el ESP8266 con modem sleep pierde el multicast de mDNS). Arreglado en 0.2.1 con `WiFi.setSleepMode(WIFI_NONE_SLEEP)`; probado en la placa.

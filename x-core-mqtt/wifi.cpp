@@ -13,6 +13,9 @@
 
 #define PORTAL_FLAG    0x504f5254 // "PORT", kept in RTC memory across a reboot
 #define PORTAL_TIMEOUT 300        // seconds
+// RTC user memory block for the flag. Blocks 0-31 (the first 128 bytes) are
+// overwritten by the core/eboot (OTA command), which erased the flag on boot.
+#define PORTAL_RTC_BLOCK 32
 
 /**
  * Make the next boot open the configuration portal. The flag lives in RTC
@@ -20,7 +23,7 @@
  */
 void requestConfigPortal() {
   uint32_t flag = PORTAL_FLAG;
-  ESP.rtcUserMemoryWrite(0, &flag, sizeof(flag));
+  ESP.rtcUserMemoryWrite(PORTAL_RTC_BLOCK, &flag, sizeof(flag));
 }
 
 /**
@@ -29,12 +32,12 @@ void requestConfigPortal() {
  */
 static bool portalRequested() {
   uint32_t flag = 0;
-  ESP.rtcUserMemoryRead(0, &flag, sizeof(flag));
+  ESP.rtcUserMemoryRead(PORTAL_RTC_BLOCK, &flag, sizeof(flag));
   if (flag != PORTAL_FLAG) {
     return false;
   }
   flag = 0;
-  ESP.rtcUserMemoryWrite(0, &flag, sizeof(flag));
+  ESP.rtcUserMemoryWrite(PORTAL_RTC_BLOCK, &flag, sizeof(flag));
   return true;
 }
 

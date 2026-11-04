@@ -19,8 +19,8 @@
 - [ ] Detectar si cada zona está regando de verdad. Hoy el dashboard solo muestra lo que la placa mandó (REM es de un solo sentido): no ve los programas propios del X-Core ni el dial manual, y no confirma que la válvula abrió. Idea: un optoacoplador por salida de zona (H11AA1, o PC817 + resistencia + diodo) que detecte los 24 VAC hacia la válvula, leído en D2, D5, D6 y D7, y mostrarlo en el dashboard / `/api/status`. Referencias: [HunterMonitor](https://github.com/czsmith/HunterMonitor) (X-Core 400) y [Hunter_LS](https://github.com/luisfosoares/Hunter_LS).
 
 ## OTA / actualización
-- [ ] Probar subir el firmware por WiFi desde `/update` (el 0.2.1 se subió por USB).
-- [ ] Permitir subir la imagen del LittleFS (dashboard) desde `/update`. Implementado en 0.2.0, falta probar en la placa.
+- [x] Probar subir el firmware por WiFi desde `/update`. Probado en la placa (2026-11-04).
+- [x] Permitir subir la imagen del LittleFS (dashboard) desde `/update`. Probado en la placa (2026-11-04): nombres de zonas y horarios se conservan.
 
 ## Dashboard / personalización
 - [x] Nombres para las zonas ("Jardín del frente", etc.). Probado en la placa (2026-11-03).

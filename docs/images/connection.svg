@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="830" viewBox="0 0 1000 830" font-family="DejaVu Sans, Arial, sans-serif">
+  <rect width="1000" height="830" fill="#ffffff"/>
+
+  <text x="500" y="38" text-anchor="middle" font-size="22" font-weight="bold" fill="#222">Conexión NodeMCU ↔ Hunter X-Core (SmartPort)</text>
+
+  <!-- Warnings -->
+  <g>
+    <rect x="20" y="80" width="250" height="400" rx="8" fill="#fff4f2" stroke="#d62828" stroke-width="1.5"/>
+    <text x="35" y="108" font-size="15" font-weight="bold" fill="#b00020">⚠ Importante</text>
+    <g font-size="12.5" fill="#333">
+      <text x="35" y="138">• GND de la placa: a ningún</text>
+      <text x="35" y="155">  borne del X-Core.</text>
+      <text x="35" y="185">• Fuente USB aislada de 2 patas</text>
+      <text x="35" y="202">  (sin tierra).</text>
+      <text x="35" y="232">• Nunca enchufar el USB de la</text>
+      <text x="35" y="249">  compu con la placa cableada:</text>
+      <text x="35" y="266">  actualizar por /update.</text>
+      <text x="35" y="296">• AC1 queda sin conectar.</text>
+      <text x="35" y="326">• Si el X-Core ignora los</text>
+      <text x="35" y="343">  comandos: buffer SN74AHCT125</text>
+      <text x="35" y="360">  entre D1 y REM.</text>
+      <text x="35" y="390">• El orden de los bornes puede</text>
+      <text x="35" y="407">  variar: guiarse por los</text>
+      <text x="35" y="424">  rótulos AC1 / AC2 / REM.</text>
+      <text x="35" y="454">• Medir VIN con el tester:</text>
+      <text x="35" y="471">  ≈ 4,7–5 V con el USB puesto.</text>
+    </g>
+  </g>
+
+  <!-- NodeMCU board -->
+  <g>
+    <rect x="330" y="70" width="200" height="510" rx="10" fill="#1d3557" stroke="#0b1d33" stroke-width="2"/>
+    <!-- antenna -->
+    <rect x="370" y="80" width="120" height="38" rx="3" fill="#2a4a73"/>
+    <path d="M380 108 h12 v-20 h12 v20 h12 v-20 h12 v20 h12 v-20 h12 v20 h12 v-20 h12 v20" fill="none" stroke="#e8c96b" stroke-width="2"/>
+    <!-- ESP-12 shield -->
+    <rect x="375" y="125" width="110" height="80" rx="3" fill="#c0c6cc" stroke="#8a9299"/>
+    <text x="430" y="170" text-anchor="middle" font-size="13" fill="#333">ESP-12</text>
+    <text x="430" y="320" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">NodeMCU</text>
+    <text x="430" y="342" text-anchor="middle" font-size="12" fill="#c9d6e8">ESP8266</text>
+    <!-- micro USB -->
+    <rect x="410" y="562" width="40" height="22" rx="3" fill="#b8bec4" stroke="#6c757d"/>
+
+    <!-- left pins -->
+    <g font-size="11" fill="#e6edf5">
+      <g id="lp">
+        <circle cx="342" cy="130" r="4" fill="#d4af37"/><text x="352" y="134">A0</text>
+        <circle cx="342" cy="158" r="4" fill="#d4af37"/><text x="352" y="162">RSV</text>
+        <circle cx="342" cy="186" r="4" fill="#d4af37"/><text x="352" y="190">RSV</text>
+        <circle cx="342" cy="214" r="4" fill="#d4af37"/><text x="352" y="218">SD3</text>
+        <circle cx="342" cy="242" r="4" fill="#d4af37"/><text x="352" y="246">SD2</text>
+        <circle cx="342" cy="270" r="4" fill="#d4af37"/><text x="352" y="274">SD1</text>
+        <circle cx="342" cy="298" r="4" fill="#d4af37"/><text x="352" y="302">CMD</text>
+        <circle cx="342" cy="326" r="4" fill="#d4af37"/><text x="352" y="330">SD0</text>
+        <circle cx="342" cy="354" r="4" fill="#d4af37"/><text x="352" y="358">CLK</text>
+        <circle cx="342" cy="382" r="4" fill="#d4af37"/><text x="352" y="386">GND</text>
+        <circle cx="342" cy="410" r="4" fill="#d4af37"/><text x="352" y="414">3V3</text>
+        <circle cx="342" cy="438" r="4" fill="#d4af37"/><text x="352" y="442">EN</text>
+        <circle cx="342" cy="466" r="4" fill="#d4af37"/><text x="352" y="470">RST</text>
+        <circle cx="342" cy="494" r="4" fill="#d4af37"/><text x="352" y="498">GND</text>
+      </g>
+      <circle cx="342" cy="522" r="6" fill="#d62828" stroke="#fff" stroke-width="1.5"/>
+      <text x="354" y="527" font-size="13" font-weight="bold" fill="#ffffff">VIN</text>
+    </g>
+
+    <!-- right pins -->
+    <g font-size="11" fill="#e6edf5" text-anchor="end">
+      <circle cx="518" cy="130" r="4" fill="#d4af37"/><text x="508" y="134">D0</text>
+      <circle cx="518" cy="158" r="6" fill="#e9b600" stroke="#fff" stroke-width="1.5"/>
+      <text x="506" y="163" font-size="13" font-weight="bold" fill="#ffffff">D1</text>
+      <circle cx="518" cy="186" r="4" fill="#d4af37"/><text x="508" y="190">D2</text>
+      <circle cx="518" cy="214" r="4" fill="#d4af37"/><text x="508" y="218">D3</text>
+      <circle cx="518" cy="242" r="4" fill="#d4af37"/><text x="508" y="246">D4</text>
+      <circle cx="518" cy="270" r="4" fill="#d4af37"/><text x="508" y="274">3V3</text>
+      <circle cx="518" cy="298" r="4" fill="#d4af37"/><text x="508" y="302">GND</text>
+      <circle cx="518" cy="326" r="4" fill="#d4af37"/><text x="508" y="330">D5</text>
+      <circle cx="518" cy="354" r="4" fill="#d4af37"/><text x="508" y="358">D6</text>
+      <circle cx="518" cy="382" r="4" fill="#d4af37"/><text x="508" y="386">D7</text>
+      <circle cx="518" cy="410" r="4" fill="#d4af37"/><text x="508" y="414">D8</text>
+      <circle cx="518" cy="438" r="4" fill="#d4af37"/><text x="508" y="442">RX</text>
+      <circle cx="518" cy="466" r="4" fill="#d4af37"/><text x="508" y="470">TX</text>
+      <circle cx="518" cy="494" r="4" fill="#d4af37"/><text x="508" y="498">GND</text>
+      <circle cx="518" cy="522" r="4" fill="#d4af37"/><text x="508" y="526">3V3</text>
+    </g>
+  </g>
+
+  <!-- X-Core terminal block -->
+  <g>
+    <rect x="760" y="100" width="200" height="200" rx="8" fill="#e9ecef" stroke="#6c757d" stroke-width="1.5"/>
+    <text x="860" y="88" text-anchor="middle" font-size="15" font-weight="bold" fill="#222">X-Core (bornera)</text>
+    <g font-size="15" font-weight="bold" fill="#222">
+      <circle cx="790" cy="158" r="12" fill="#adb5bd" stroke="#495057" stroke-width="1.5"/>
+      <path d="M782 158 h16" stroke="#495057" stroke-width="2"/>
+      <text x="815" y="163">REM</text>
+      <circle cx="790" cy="230" r="12" fill="#adb5bd" stroke="#495057" stroke-width="1.5"/>
+      <path d="M782 230 h16" stroke="#495057" stroke-width="2"/>
+      <text x="815" y="235">AC2</text>
+      <circle cx="790" cy="276" r="12" fill="#adb5bd" stroke="#495057" stroke-width="1.5"/>
+      <path d="M782 276 h16" stroke="#495057" stroke-width="2"/>
+      <text x="815" y="281">AC1</text>
+    </g>
+    <text x="870" y="281" font-size="12" fill="#6c757d">sin conectar</text>
+  </g>
+
+  <!-- USB power supply -->
+  <g>
+    <path d="M430 584 V650" stroke="#555" stroke-width="5" fill="none"/>
+    <rect x="345" y="650" width="170" height="80" rx="10" fill="#f8f9fa" stroke="#343a40" stroke-width="2"/>
+    <text x="430" y="682" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">Fuente USB 5 V</text>
+    <text x="430" y="702" text-anchor="middle" font-size="12" fill="#444">aislada, 2 patas</text>
+    <text x="430" y="719" text-anchor="middle" font-size="12" fill="#444">(sin tierra)</text>
+    <!-- plug pins -->
+    <rect x="410" y="730" width="6" height="18" fill="#868e96"/>
+    <rect x="444" y="730" width="6" height="18" fill="#868e96"/>
+    <text x="442" y="618" font-size="12" fill="#444">cable micro-USB</text>
+    <text x="442" y="634" font-size="12" fill="#444">(alimenta la placa)</text>
+  </g>
+
+  <!-- Wires -->
+  <!-- D1 -> REM (data) -->
+  <path d="M524 158 H778" stroke="#7a5c00" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <path d="M524 158 H778" stroke="#f2c200" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <text x="650" y="148" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a5c00">D1 → REM (datos)</text>
+
+  <!-- VIN -> AC2 -->
+  <path d="M336 522 H300 V780 H700 V230 H778" stroke="#d62828" stroke-width="5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="710" y="420" font-size="13" font-weight="bold" fill="#d62828">VIN → AC2</text>
+  <text x="710" y="438" font-size="12" fill="#d62828">(+5 V del USB,</text>
+  <text x="710" y="454" font-size="12" fill="#d62828">≈ 4,7 V tras el diodo)</text>
+
+  <!-- footer -->
+  <text x="500" y="815" text-anchor="middle" font-size="12" fill="#6c757d">Solo dos cables al X-Core: amarillo (D1 → REM) y rojo (VIN → AC2). GND y AC1 no se conectan.</text>
+</svg>

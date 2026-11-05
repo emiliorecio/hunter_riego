@@ -11,13 +11,17 @@ My experience (and other people who also tried it), is that it will also work wi
 
 ## 1. Using an external power supply
 
-This is the set up I currently have. You can use any mobile phone charger to power the board, cutting the 5 VDC cable (normally red) and connect it to the AC#2.
+Power the board from an isolated USB charger plugged into its micro-USB port, and wire only two cables to the controller:
 
-You will also need to connect the GPIO5 / D1 (if using the default installation) to the REM port. The diagram below shows GPIO16 / D0, the upstream default: this project moved it to D1 so the NodeMCU onboard LED on D0 does not stay lit.
+- **GPIO5 / D1 → REM** (data). The upstream default is GPIO16 / D0; this project moved it to D1 so the NodeMCU onboard LED on D0 does not stay lit.
+- **VIN → AC#2**. On the NodeMCU, VIN is the USB 5 V after a diode (≈ 4.7 V), which aligns the board with the REM reference. Measure VIN with a multimeter first: some clones do not wire it to USB.
+- GND and AC#1 stay unconnected.
 
-The following diagram shows how to connect it. You can also [check a real photo of my setup](../images/my-setup.jpeg).
+Alternatively, cut the charger's USB cable and wire its 5 VDC (normally red) to VIN and AC#2, and its 0 V to GND only.
 
 ![Connection diagram](../images/connection.png)
+
+You can also [check a real photo of the upstream author's setup](../images/my-setup.jpeg) (a Hunter Pro-C, powered the same way through USB).
 
 ### Safety and grounding warnings
 

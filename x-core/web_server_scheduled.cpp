@@ -5,6 +5,7 @@
  * to perform it and send the result to a webhook.
  *
  * First version: July 2020 - Eloi Codina Torras
+ * Modified by Emilio Recio, 2026 (hunter_riego): see the git history.
  */
 #include "ESP8266HTTPClient.h"
 #include "ESP8266WiFi.h"

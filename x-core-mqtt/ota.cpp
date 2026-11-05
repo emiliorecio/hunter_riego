@@ -1,3 +1,5 @@
+// Based on hunter-wifi by Eloi Codina Torras (GPL v3).
+// Modified by Emilio Recio, 2026 (hunter_riego): see the git history.
 #include "LittleFS.h"
 #include "Updater.h"
 #include "flash_hal.h"

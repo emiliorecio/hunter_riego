@@ -2,6 +2,7 @@
  * Connect to WiFi or setup a captive portal to configure WiFi parameters.
  *
  * First version: July 2020 - Eloi Codina Torras
+ * Modified by Emilio Recio, 2026 (hunter_riego): see the git history.
  */
 
 #include "DNSServer.h"

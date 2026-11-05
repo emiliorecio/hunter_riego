@@ -4,6 +4,7 @@
  * the Hunter Irrigation System.
  *
  * First version: July 2020 - Eloi Codina Torras
+ * Modified by Emilio Recio, 2026 (hunter_riego): see the git history.
  */
 #include "Schedule.h"
 

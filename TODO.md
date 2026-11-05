@@ -33,7 +33,7 @@
 
 ## Red
 - [x] `X-CORE.local` dejaba de resolver (el ESP8266 con modem sleep pierde el multicast de mDNS). Arreglado en 0.2.1 con `WiFi.setSleepMode(WIFI_NONE_SLEEP)`; probado en la placa.
-- [ ] Reservar una IP fija para la placa en el router, como respaldo si `.local` falla.
+- [x] Reservar una IP fija para la placa en el router, como respaldo si `.local` falla.
 
 ## Limpieza de código
 - [x] `HUNTER_PIN` en `HunterRoam.h` no se usa y dice D0: borrarlo.

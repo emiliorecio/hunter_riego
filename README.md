@@ -123,4 +123,8 @@ En `http://X-CORE.local/update` se elige qué se sube:
 Basado en [hunter-wifi](https://github.com/ecodina/hunter-wifi) de Eloi Codina
 Torras (2020-2022), que a su vez parte del trabajo de
 [Sebastien](https://github.com/seb821/OpenSprinkler-Firmware-Hunter).
+Modificaciones © 2026 Emilio Recio: los archivos tomados del original y
+modificados lo indican en su encabezado, y el detalle de los cambios está en el
+historial de git.
+
 Se distribuye bajo **GNU GPL v3**, igual que el original. Ver [LICENSE](LICENSE).
